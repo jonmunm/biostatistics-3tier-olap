@@ -1,0 +1,15 @@
+logs
+gx
+data
+.ipynb_checkpoints
+airflow/logs/
+#airflow/dags/__pycache__
+#airflow/dags/lib/__pycache__
+#scripts/spark/lib/__pycache__
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales y configuraciones locales
+.env

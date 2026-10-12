@@ -1,0 +1,57 @@
+services:
+  spark-driver:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    container_name: spark_driver
+    hostname: ${SPARK_DRIVER_HOST}
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.master.Master
+      - --host
+      - spark-driver
+      - --port
+      - "7077"
+      - --webui-port
+      - "8080"
+    environment:
+      - DATA_PATH=${DATA_PATH}
+      - SCRIPTS_PATH=${SCRIPTS_PATH}
+      - SPARK_NO_DAEMONIZE=true
+      - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
+      - STORAGE_CONTAINER=${STORAGE_CONTAINER}
+      - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
+    ports:
+      - "7077:7077"
+      - "8081:8080"
+    volumes:
+      - ./data:${DATA_PATH}
+      - ./scripts:${SCRIPTS_PATH}
+      - gx_metadata:/opt/spark/work-dir/gx
+    user: root
+
+  spark-worker:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    container_name: spark_worker
+    hostname: ${SPARK_WORKER_HOST}
+    command: 
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.worker.Worker
+      - spark://${SPARK_DRIVER_HOST}:7077
+    environment:
+      - SPARK_WORKER_CORES=4
+      - SPARK_WORKER_MEMORY=8g
+      - DATA_PATH=${DATA_PATH}
+      - SCRIPTS_PATH=${SCRIPTS_PATH}
+      - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
+      - STORAGE_CONTAINER=${STORAGE_CONTAINER}
+      - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
+    volumes:
+      - ./data:${DATA_PATH}
+      - ./scripts:${SCRIPTS_PATH}
+      - gx_metadata:/opt/spark/work-dir/gx
+    user: root
+    depends_on:
+      - spark-driver

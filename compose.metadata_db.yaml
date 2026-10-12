@@ -1,0 +1,21 @@
+services:
+  metadata_db:
+    image: postgres:13
+    container_name: metadata_db
+    hostname: ${METADATA_DB_HOST}
+    environment:
+      POSTGRES_USER: ${METADATA_DB_USER}
+      POSTGRES_PASSWORD: ${METADATA_DB_PASS}
+      POSTGRES_DB: ${METADATA_DB}
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+# El volumen se declara aquí porque solo le pertenece a este archivo
+volumes:
+  postgres-db-volume:

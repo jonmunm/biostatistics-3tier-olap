@@ -1,0 +1,215 @@
+import os
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+
+DATA_PATH = os.getenv("DATA_PATH")
+if not DATA_PATH:
+    raise Exception("DATA_PATH not set")
+
+STORAGE_ACCOUNT = os.getenv("STORAGE_ACCOUNT")
+if not STORAGE_ACCOUNT:
+    raise Exception("STORAGE_ACCOUNT not set")
+
+STORAGE_CONTAINER = os.getenv("STORAGE_CONTAINER")
+if not STORAGE_CONTAINER:
+    raise Exception("STORAGE_CONTAINER not set")
+    
+def download(spark: SparkSession, schema: StructType, years: list):
+    file_paths = [
+        f"wasbs://{STORAGE_CONTAINER}@{STORAGE_ACCOUNT}.blob.core.windows.net/raw/discharges/{year}.csv" 
+        for year in years
+    ]
+
+    return spark.read \
+        .format("csv") \
+        .option("header", "true") \
+        .option("sep", ";") \
+        .schema(schema) \
+        .load(file_paths)
+
+# 2001, 2003 -> "M/d/yyyy"
+# 2002, 2004 -> "dd-M-yyyy"
+# 2006 -> ""
+def load_group_1(spark:SparkSession):
+    schema = StructType([
+        StructField("D_R", IntegerType(), True),
+        StructField("ser_salud", IntegerType(), True),
+        StructField("estab", IntegerType(), True),
+        StructField("sexo", IntegerType(), True),
+        StructField("edad", IntegerType(), True),
+        StructField("previ", IntegerType(), True),
+        StructField("benef", IntegerType(), True),
+        StructField("comuna", IntegerType(), True),
+        StructField("fecha_egre", StringType(), True),
+        StructField("sercle", StringType(), True),
+        StructField("dias_estad", IntegerType(), True),
+        StructField("diag1", StringType(), True),
+        StructField("diag2", StringType(), True),
+        StructField("cond_egr", IntegerType(), True),
+        StructField("intervq", IntegerType(), True),
+        StructField("region", IntegerType(), True),
+        StructField("serv_res", StringType(), True),
+    ])
+    
+    years = [2001, 2002, 2003, 2004, 2006]
+    return download(spark, schema, years)
+
+
+# 2005 -> "yyyy-MM-dd"
+def load_group_2(spark:SparkSession):
+    schema = StructType([
+        StructField("SER_SALUD", IntegerType(), True),
+        StructField("EDAD", IntegerType(), True),
+        StructField("SEXO", IntegerType(), True),
+        StructField("COMUNA", IntegerType(), True),
+        StructField("SER_RES", IntegerType(), True),
+        StructField("REGION", IntegerType(), True),
+        StructField("PREVI", IntegerType(), True),
+        StructField("BENEF", IntegerType(), True),
+        StructField("MOD", IntegerType(), True),
+        StructField("SERC_EGR", StringType(), True),
+        StructField("FECHA_EGR", StringType(), True),
+        StructField("DIAS_ESTAD", IntegerType(), True),
+        StructField("COND_EGR", IntegerType(), True),
+        StructField("DIAG1", StringType(), True),
+        StructField("DIAG2", StringType(), True),
+        StructField("INTERV_Q", IntegerType(), True),
+        StructField("EST", StringType(), True)
+    ])
+
+    years = [2005]
+    return download(spark, schema, years)
+
+# 2007, 2009, 2011, 2012
+def load_group_3(spark:SparkSession):
+    schema = StructType([
+        StructField("D_R", IntegerType(), True),
+        StructField("ser_salud", IntegerType(), True),
+        StructField("estab", IntegerType(), True),
+        StructField("sexo", IntegerType(), True),
+        StructField("edad", IntegerType(), True),
+        StructField("previ", IntegerType(), True),
+        StructField("benef", IntegerType(), True),
+        StructField("mod", IntegerType(), True),
+        StructField("comuna", IntegerType(), True),
+        StructField("fecha_egre", StringType(), True),
+        StructField("sercle", StringType(), True),
+        StructField("dias_estad", IntegerType(), True),
+        StructField("diag1", StringType(), True),
+        StructField("diag2", StringType(), True),
+        StructField("cond_egr", IntegerType(), True),
+        StructField("intervq", IntegerType(), True),
+        StructField("region", IntegerType(), True),
+        StructField("serv_res", StringType(), True),
+    ])
+
+    years = [2007,2009,2011,2012]
+    return download(spark, schema, years)
+
+
+# 2008
+def load_group_4(spark:SparkSession):
+    schema = StructType([
+        StructField("D_R", IntegerType(), True),
+        StructField("ser_salud", IntegerType(), True),
+        StructField("estab", IntegerType(), True),
+        StructField("sexo", IntegerType(), True),
+        StructField("edad", IntegerType(), True),
+        StructField("previ", IntegerType(), True),
+        StructField("benef", IntegerType(), True),
+        StructField("mod", IntegerType(), True),
+        StructField("comuna", IntegerType(), True),
+        StructField("region", IntegerType(), True),
+        StructField("serv_res", StringType(), True),
+        StructField("fecha_egre", StringType(), True),
+        StructField("sercle", StringType(), True),
+        StructField("dias_estad", IntegerType(), True),
+        StructField("diag1", StringType(), True),
+        StructField("diag2", StringType(), True),
+        StructField("cond_egr", IntegerType(), True),
+        StructField("intervq", IntegerType(), True),
+    ])
+
+    years = [2008]
+    return download(spark, schema, years)
+
+
+# 2010
+def load_group_5(spark:SparkSession):
+    schema = StructType([
+        StructField("D_R", IntegerType(), True),
+        StructField("estab", IntegerType(), True),
+        StructField("ser_salud", IntegerType(), True),
+        StructField("sexo", IntegerType(), True),
+        StructField("edad", IntegerType(), True),
+        StructField("previ", IntegerType(), True),
+        StructField("benef", IntegerType(), True),
+        StructField("mod", IntegerType(), True),
+        StructField("comuna", IntegerType(), True),
+        StructField("fecha_egre", StringType(), True),
+        StructField("sercle", StringType(), True),
+        StructField("dias_estad", IntegerType(), True),
+        StructField("diag1", StringType(), True),
+        StructField("diag2", StringType(), True),
+        StructField("cond_egr", IntegerType(), True),
+        StructField("intervq", IntegerType(), True),
+        StructField("region", IntegerType(), True),
+        StructField("serv_res", StringType(), True),
+    ])
+
+    years = [2010]
+    return download(spark, schema, years)
+
+
+# 2013
+def load_group_6(spark:SparkSession):
+    schema = StructType([
+        StructField("ESTAB", IntegerType(), True),
+        StructField("SER_SALUD", IntegerType(), True),
+        StructField("SEXO", IntegerType(), True),
+        StructField("EDAD", IntegerType(), True),
+        StructField("PREVI", IntegerType(), True),
+        StructField("BENEF", IntegerType(), True),
+        StructField("MOD", IntegerType(), True),
+        StructField("COMUNA", IntegerType(), True),
+        StructField("REGION", IntegerType(), True),
+        StructField("SERV_RES", StringType(), True),
+        StructField("FECHA_EGR", StringType(), True),
+        StructField("SERC_EGR", StringType(), True),
+        StructField("DIAG1", StringType(), True),
+        StructField("DIAG2", StringType(), True),
+        StructField("DIAS_ESTAD", IntegerType(), True),
+        StructField("COND_EGR", IntegerType(), True),
+        StructField("INTERV_Q", IntegerType(), True)
+    ])
+
+    years = [2013]
+    return download(spark, schema, years)
+
+
+# 2014, 2015, 2016, 2017, 2018
+def load_group_7(spark:SparkSession):
+    schema = StructType([
+        StructField("ESTAB", IntegerType(), True),
+        StructField("Seremi", IntegerType(), True),
+        StructField("ServicioSalud", IntegerType(), True),
+        StructField("SEXO", IntegerType(), True),
+        StructField("EDAD", IntegerType(), True),
+        StructField("PREVI", IntegerType(), True),
+        StructField("BENEF", IntegerType(), True),
+        StructField("MOD", IntegerType(), True),
+        StructField("COMUNA", IntegerType(), True),
+        StructField("REGION", IntegerType(), True),
+        StructField("SERV_RES", StringType(), True),
+        StructField("FECHA_EGR", StringType(), True),
+        StructField("SERC_EGR", StringType(), True),
+        StructField("DIAG1", StringType(), True),
+        StructField("DIAG2", StringType(), True),
+        StructField("DIAS_ESTAD", IntegerType(), True),
+        StructField("COND_EGR", IntegerType(), True),
+        StructField("INTERV_Q", IntegerType(), True)
+    ])
+
+    years = [2014,2015,2016,2017,2018]
+    return download(spark, schema, years)

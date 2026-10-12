@@ -1,0 +1,21 @@
+services:
+  jupyter:
+    build:
+      context: .
+      dockerfile: docker/jupyter/Dockerfile
+    container_name: jupyter
+    profiles:
+      - debug
+    volumes:
+      - .:/opt/spark/work-dir
+      - ./data:/app/data
+      - gx_metadata:/opt/spark/work-dir/gx
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    environment:
+      - SPARK_MODE=master
+      - DATA_PATH=${DATA_PATH}
+      - SCRIPTS_PATH=${SCRIPTS_PATH}
+    command: >
+      pyspark
