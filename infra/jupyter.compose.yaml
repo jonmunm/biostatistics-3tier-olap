@@ -7,7 +7,7 @@ services:
     profiles:
       - debug
     volumes:
-      - ../.:/opt/spark/work-dir
+      - ../src:/opt/spark/work-dir
       - ../data:${DATA_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     ports:

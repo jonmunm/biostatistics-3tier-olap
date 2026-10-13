@@ -26,7 +26,7 @@ services:
       - "8081:8080"
     volumes:
       - ../data:${DATA_PATH}
-      - ../scripts:${SCRIPTS_PATH}
+      - ../src/spark:${SCRIPTS_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     user: root
 
@@ -47,10 +47,9 @@ services:
       - SCRIPTS_PATH=${SCRIPTS_PATH}
       - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
       - STORAGE_CONTAINER=${STORAGE_CONTAINER}
-      # - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
     volumes:
       - ../data:${DATA_PATH}
-      - ../scripts:${SCRIPTS_PATH}
+      - ../src/spark:${SCRIPTS_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     user: root
     depends_on:

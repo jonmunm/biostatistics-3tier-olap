@@ -21,14 +21,13 @@ x-airflow-common: &airflow-common
     AIRFLOW_CONN_COMPUTE_ENGINE: '{"conn_type": "spark", "host": "spark://${SPARK_DRIVER_HOST}", "port": 7077}'
     STORAGE_ACCOUNT: ${STORAGE_ACCOUNT}
     STORAGE_CONTAINER: ${STORAGE_CONTAINER}
-    # STORAGE_SAS_TOKEN: ${STORAGE_SAS_TOKEN}
   volumes:
     - ../.:/opt/airflow/project:ro
-    - ../airflow/dags:/opt/airflow/dags
-    - ../airflow/logs:/opt/airflow/logs:rw
-    - ../airflow/config:/opt/airflow/config
-    - ../airflow/plugins:/opt/airflow/plugins
-    - ../scripts:${SCRIPTS_PATH}
+    - ../src/airflow/dags:/opt/airflow/dags
+    - ../src/airflow/logs:/opt/airflow/logs:rw
+    - ../src/airflow/config:/opt/airflow/config
+    - ../src/airflow/plugins:/opt/airflow/plugins
+    - ../src:${SCRIPTS_PATH}
     - ../data:${DATA_PATH}
     - ../data:/app/data:rw
   user: "0:0"

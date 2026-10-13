@@ -19,8 +19,6 @@ DATA_PATH = os.getenv("DATA_PATH")
 if not DATA_PATH:
     raise Exception("DATA_PATH not set")
 
-logger = logging.getLogger(__name__)
-
 if __name__ == "__main__":
 
     spark = SparkSession\
