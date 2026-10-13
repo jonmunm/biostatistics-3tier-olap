@@ -16,6 +16,5 @@ services:
       start_period: 5s
     restart: always
 
-# El volumen se declara aquí porque solo le pertenece a este archivo
 volumes:
   postgres-db-volume:

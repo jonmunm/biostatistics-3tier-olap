@@ -1,8 +1,8 @@
 services:
   spark-driver:
     build:
-      context: .
-      dockerfile: docker/spark/Dockerfile
+      context: ..
+      dockerfile: infra/spark.Dockerfile
     container_name: spark_driver
     hostname: ${SPARK_DRIVER_HOST}
     command:
@@ -20,23 +20,23 @@ services:
       - SPARK_NO_DAEMONIZE=true
       - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
       - STORAGE_CONTAINER=${STORAGE_CONTAINER}
-      - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
+      # - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
     ports:
       - "7077:7077"
       - "8081:8080"
     volumes:
-      - ./data:${DATA_PATH}
-      - ./scripts:${SCRIPTS_PATH}
+      - ../data:${DATA_PATH}
+      - ../scripts:${SCRIPTS_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     user: root
 
   spark-worker:
     build:
-      context: .
-      dockerfile: docker/spark/Dockerfile
+      context: ..
+      dockerfile: infra/spark.Dockerfile
     container_name: spark_worker
     hostname: ${SPARK_WORKER_HOST}
-    command: 
+    command:
       - /opt/spark/bin/spark-class
       - org.apache.spark.deploy.worker.Worker
       - spark://${SPARK_DRIVER_HOST}:7077
@@ -47,10 +47,10 @@ services:
       - SCRIPTS_PATH=${SCRIPTS_PATH}
       - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
       - STORAGE_CONTAINER=${STORAGE_CONTAINER}
-      - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
+      # - STORAGE_SAS_TOKEN=${STORAGE_SAS_TOKEN}
     volumes:
-      - ./data:${DATA_PATH}
-      - ./scripts:${SCRIPTS_PATH}
+      - ../data:${DATA_PATH}
+      - ../scripts:${SCRIPTS_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     user: root
     depends_on:

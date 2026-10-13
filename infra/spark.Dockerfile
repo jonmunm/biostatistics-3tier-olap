@@ -2,14 +2,12 @@ FROM apache/spark-py:latest
 
 USER root
 
-# Instalamos herramientas básicas y dependencias de python necesarias para GE
 RUN apt-get update && apt-get install -y \
     curl \
     procps \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalamos Great Expectations
 RUN pip3 install --no-cache-dir great_expectations
 
 ENV SPARK_HOME=/opt/spark

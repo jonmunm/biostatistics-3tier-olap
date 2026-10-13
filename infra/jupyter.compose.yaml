@@ -1,14 +1,14 @@
 services:
   jupyter:
     build:
-      context: .
-      dockerfile: docker/jupyter/Dockerfile
+      context: ..
+      dockerfile: infra/jupyter.Dockerfile
     container_name: jupyter
     profiles:
       - debug
     volumes:
-      - .:/opt/spark/work-dir
-      - ./data:/app/data
+      - ../.:/opt/spark/work-dir
+      - ../data:${DATA_PATH}
       - gx_metadata:/opt/spark/work-dir/gx
     ports:
       - "8888:8888"

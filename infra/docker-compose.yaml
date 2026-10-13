@@ -1,0 +1,10 @@
+name: ${COMPOSE_PROJECT_NAME}
+
+include:
+  - airflow.compose.yaml
+  - metadata_db.compose.yaml
+  - spark.compose.yaml
+  - jupyter.compose.yaml
+
+volumes:
+  gx_metadata:

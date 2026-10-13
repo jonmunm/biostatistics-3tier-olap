@@ -1,41 +1,38 @@
-x-airflow-common:
-  &airflow-common
+x-airflow-common: &airflow-common
   build:
-    context: .
-    dockerfile: docker/airflow/Dockerfile
-  environment:
-    &airflow-common-env
+    context: ..
+    dockerfile: infra/airflow.Dockerfile
+  environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@metadata_db/airflow
-    AIRFLOW__API_AUTH__JWT_SECRET: 'test-key'
-    AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: 'http://airflow-apiserver:8080/execution/'
-    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    AIRFLOW__API_AUTH__JWT_SECRET: "test-key"
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow-apiserver:8080/execution/"
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
     AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 5
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    AIRFLOW_CONFIG: "/opt/airflow/config/airflow.cfg"
     DATA_PATH: ${DATA_PATH}
     SCRIPTS_PATH: ${SCRIPTS_PATH}
     WAREHOUSE_DB_NAME: ${WAREHOUSE_DB_NAME}
     AIRFLOW_CONN_COMPUTE_ENGINE: '{"conn_type": "spark", "host": "spark://${SPARK_DRIVER_HOST}", "port": 7077}'
     STORAGE_ACCOUNT: ${STORAGE_ACCOUNT}
-    STORAGE_CONTAINER: ${STORAGE_CONTAINER} 
-    STORAGE_SAS_TOKEN: ${STORAGE_SAS_TOKEN}
+    STORAGE_CONTAINER: ${STORAGE_CONTAINER}
+    # STORAGE_SAS_TOKEN: ${STORAGE_SAS_TOKEN}
   volumes:
-    - .:/opt/airflow/project:ro
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs:rw
-    - ./airflow/config:/opt/airflow/config
-    - ./airflow/plugins:/opt/airflow/plugins
-    - ./scripts:${SCRIPTS_PATH}
-    - ./data:${DATA_PATH}
-    - ./data:/app/data:rw
+    - ../.:/opt/airflow/project:ro
+    - ../airflow/dags:/opt/airflow/dags
+    - ../airflow/logs:/opt/airflow/logs:rw
+    - ../airflow/config:/opt/airflow/config
+    - ../airflow/plugins:/opt/airflow/plugins
+    - ../scripts:${SCRIPTS_PATH}
+    - ../data:${DATA_PATH}
+    - ../data:/app/data:rw
   user: "0:0"
-  depends_on:
-    &airflow-common-depends-on
+  depends_on: &airflow-common-depends-on
     metadata_db:
       condition: service_healthy
 
@@ -44,7 +41,7 @@ services:
     <<: *airflow-common
     command: api-server
     container_name: airflow_api
-    hostname: airflow-apiserver    
+    hostname: airflow-apiserver
     ports:
       - "8080:8080"
     healthcheck:
@@ -81,7 +78,11 @@ services:
     command: dag-processor
     container_name: airflow_dag-processor
     healthcheck:
-      test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -97,7 +98,11 @@ services:
     command: triggerer
     container_name: airflow_triggerer
     healthcheck:
-      test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -172,11 +177,11 @@ services:
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env
-      _AIRFLOW_DB_MIGRATE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
-      _PIP_ADDITIONAL_REQUIREMENTS: ''
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     user: "0:0"
 
   airflow-cli:
