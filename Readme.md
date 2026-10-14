@@ -92,7 +92,7 @@ Below is the schema breakdown of the master dimensions supporting the Gold layer
 * ```subcategory_name```: Clinical description of the cause.
 * ```chapter_name```: General chapter of the morbidity/mortality classification.
 
-### 8. ```fact_biostatistics``` (Causes of Death - ICD-10)
+### 8. ```fact_biostatistics```
 
 The ```fact_biostatistics``` table is implemented as a Factless Fact Table within a Star Schema architecture. Unlike traditional transactional fact tables that store numeric measurements or additive metrics (such as revenue, quantities, or durations), this table captures the co-occurrence, intersection, and relationship among multiple descriptive dimensions for each hospital discharge event.
 
