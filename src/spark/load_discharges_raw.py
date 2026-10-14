@@ -1,3 +1,8 @@
+"""
+Spark application module for extracting raw health discharge data across multiple 
+year groups, standardizing schemas, unioning datasets, and persisting them into raw storage.
+"""
+
 import logging
 import sys
 import os
@@ -7,7 +12,6 @@ from lib import discharges_raw_loader as raw_loader
 
 APP_NAME = "Discharge App - Raw"
 
-# Asegúrate de definir esto ANTES de crear la SparkSession
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -21,6 +25,11 @@ if not DATA_PATH:
     raise Exception("DATA_PATH not set")
 
 if __name__ == "__main__":
+    """
+    Main entry point for the raw discharge processing job. Initializes the Spark session,
+    loads and standardizes schemas for all seven historical discharge groups, unions them 
+    into a single unified dataframe, and writes the output as a Parquet file to the raw layer.
+    """
 
     spark = SparkSession.builder \
         .appName(APP_NAME) \

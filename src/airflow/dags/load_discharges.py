@@ -1,3 +1,8 @@
+"""
+Main Airflow DAG module for orchestrating the biostatistics data discharge pipeline,
+including database initialization, spark transformations, tests, and database ingestion.
+"""
+
 from airflow.sdk import dag, task, Param
 from airflow.utils.trigger_rule import TriggerRule
 from groups.create_db_initialization_group import create_db_initialization_group
@@ -37,6 +42,10 @@ from lib.skippable_empty_operator import SkippableEmptyOperator
     }
 )
 def load_discharge():
+    """
+    Defines the 'load_discharge' DAG workflow, managing conditional execution 
+    across initialization, compute tiers, and ingestion task groups using parameters and short-circuits.
+    """
    
     start = SkippableEmptyOperator(
         task_id="Start", 
@@ -56,6 +65,10 @@ def load_discharge():
         ignore_downstream_trigger_rules=False
     )
     def run_only_db_initialization(**context):
+        """
+        Short-circuit task to determine whether the database initialization group should run 
+        based on the provided DAG parameters.
+        """
         params = context["params"]
         return params["db_initialization"].get("run", False)
 
@@ -65,6 +78,10 @@ def load_discharge():
         ignore_downstream_trigger_rules=False
     )
     def run_only_compute(**context):
+        """
+        Short-circuit task to determine whether the compute task group should run 
+        based on the provided DAG parameters.
+        """
         params = context["params"]
         return params["compute"].get("run", False)
     
@@ -74,6 +91,10 @@ def load_discharge():
         ignore_downstream_trigger_rules=False
     )
     def run_only_db_ingestions(**context):
+        """
+        Short-circuit task to determine whether the database ingestion task group should run 
+        based on the provided DAG parameters.
+        """
         params = context["params"]
         return params["db_ingestion"].get("run", False)
 

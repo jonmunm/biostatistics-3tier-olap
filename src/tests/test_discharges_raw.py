@@ -1,3 +1,8 @@
+"""
+Great Expectations data quality module for validating uniformed raw health discharge datasets,
+including schema column matching, age boundaries, and valid gender values.
+"""
+
 import os
 import sys
 import great_expectations as gx
@@ -6,6 +11,11 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("DQ_Discharges_Raw").getOrCreate()
 
 def validate_uniformed_discharges():
+    """
+    Initializes a Great Expectations context, loads the uniformed raw discharge parquet dataset,
+    configures datasource assets and expectation suites, executes validation checks for schema and values,
+    and handles assertion failures by printing out detailed failure metadata.
+    """
     context = gx.get_context(project_root_dir="/opt/spark/work-dir/gx")
     
     data_path = os.getenv('DATA_PATH', '/opt/spark/data')

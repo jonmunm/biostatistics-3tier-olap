@@ -1,3 +1,8 @@
+"""
+Spark application module for transforming raw health discharge data into the silver tier,
+including date parsing, null filling, data imputation, filtering, and writing to parquet.
+"""
+
 import logging
 import sys
 import os
@@ -7,7 +12,6 @@ from lib import discharges_silver_loader as silver_loader
 
 APP_NAME = "Discharge App - Silver"
 
-# Asegúrate de definir esto ANTES de crear la SparkSession
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -21,6 +25,12 @@ if not DATA_PATH:
     raise Exception("DATA_PATH not set")   
 
 if __name__ == "__main__":
+    """
+    Main entry point for the silver discharge processing job. Initializes the Spark session,
+    reads raw discharge data, applies cleaning and transformation utility functions, filters out 
+    invalid records based on year, handles specific health insurance adjustments, and writes 
+    the final dataframe out as Parquet files to the silver layer.
+    """
 
     spark = SparkSession.builder.appName(APP_NAME).getOrCreate()
     spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
@@ -32,10 +42,8 @@ if __name__ == "__main__":
 
     raw_df = spark.read.parquet(f"{DATA_PATH}/raw/uniformed_discharges").select(*cols_to_load)
 
-    # 1. Filtro inicial de fecha (mantenemos el trim por seguridad)
     raw_df = raw_df.filter(F.col("date").isNotNull() & (F.trim(F.col("date")) != ""))
 
-    # 2. Aplicar todo en una sola acción de selección
     final_df = raw_df.select(
         silver_loader.extract_year("date", "year"),
         silver_loader.fill_null_integers("gender"),
@@ -60,12 +68,9 @@ if __name__ == "__main__":
         ).otherwise(F.col("health_insurance"))
     )
 
-    # 3. Escritura optimizada
-    # Al estar particionado por año, Spark escribirá de forma paralela por carpeta
     final_df\
         .coalesce(1) \
         .sortWithinPartitions("year") \
         .write \
         .mode("overwrite") \
         .parquet(f"{DATA_PATH}/silver/discharges")
-    

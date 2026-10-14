@@ -1,3 +1,8 @@
+"""
+Spark application module for discovering raw dimension CSV files 
+and transforming/converting them into parquet format in the gold tier.
+"""
+
 import logging
 import sys
 import os
@@ -20,6 +25,11 @@ if not DATA_PATH:
     raise Exception("DATA_PATH not set")
 
 if __name__ == "__main__":
+    """
+    Main entry point for the dimension loading Spark job. 
+    Initializes the Spark session, discovers raw dimension CSV files dynamically, 
+    and writes them out as Parquet files into the gold tier storage.
+    """
 
     spark = SparkSession\
         .builder\

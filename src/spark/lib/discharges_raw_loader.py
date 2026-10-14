@@ -1,3 +1,8 @@
+"""
+Spark module for loading raw health discharge datasets from cloud storage 
+across various chronological schemas and year groupings.
+"""
+
 import os
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
@@ -16,6 +21,15 @@ if not STORAGE_CONTAINER:
     raise Exception("STORAGE_CONTAINER not set")
     
 def download(spark: SparkSession, schema: StructType, years: list):
+    """
+    Downloads and reads raw CSV discharge files from Azure Blob Storage 
+    for a specified list of years using a given Spark schema.
+
+    :param spark: Active SparkSession instance.
+    :param schema: PySpark StructType defining the schema for the target years.
+    :param years: List of year integers corresponding to the files to download.
+    :return: A DataFrame containing the loaded raw data.
+    """
     file_paths = [
         f"wasbs://{STORAGE_CONTAINER}@{STORAGE_ACCOUNT}.blob.core.windows.net/raw/discharges/{year}.csv" 
         for year in years
@@ -31,7 +45,11 @@ def download(spark: SparkSession, schema: StructType, years: list):
 # 2001, 2003 -> "M/d/yyyy"
 # 2002, 2004 -> "dd-M-yyyy"
 # 2006 -> ""
-def load_group_1(spark:SparkSession):
+def load_group_1(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 1 years (2001, 2002, 2003, 2004, 2006) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("D_R", IntegerType(), True),
         StructField("ser_salud", IntegerType(), True),
@@ -57,7 +75,11 @@ def load_group_1(spark:SparkSession):
 
 
 # 2005 -> "yyyy-MM-dd"
-def load_group_2(spark:SparkSession):
+def load_group_2(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 2 years (2005) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("SER_SALUD", IntegerType(), True),
         StructField("EDAD", IntegerType(), True),
@@ -82,7 +104,11 @@ def load_group_2(spark:SparkSession):
     return download(spark, schema, years)
 
 # 2007, 2009, 2011, 2012
-def load_group_3(spark:SparkSession):
+def load_group_3(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 3 years (2007, 2009, 2011, 2012) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("D_R", IntegerType(), True),
         StructField("ser_salud", IntegerType(), True),
@@ -104,12 +130,16 @@ def load_group_3(spark:SparkSession):
         StructField("serv_res", StringType(), True),
     ])
 
-    years = [2007,2009,2011,2012]
+    years = [2007, 2009, 2011, 2012]
     return download(spark, schema, years)
 
 
 # 2008
-def load_group_4(spark:SparkSession):
+def load_group_4(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 4 years (2008) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("D_R", IntegerType(), True),
         StructField("ser_salud", IntegerType(), True),
@@ -136,7 +166,11 @@ def load_group_4(spark:SparkSession):
 
 
 # 2010
-def load_group_5(spark:SparkSession):
+def load_group_5(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 5 years (2010) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("D_R", IntegerType(), True),
         StructField("estab", IntegerType(), True),
@@ -163,7 +197,11 @@ def load_group_5(spark:SparkSession):
 
 
 # 2013
-def load_group_6(spark:SparkSession):
+def load_group_6(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 6 years (2013) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("ESTAB", IntegerType(), True),
         StructField("SER_SALUD", IntegerType(), True),
@@ -189,7 +227,11 @@ def load_group_6(spark:SparkSession):
 
 
 # 2014, 2015, 2016, 2017, 2018
-def load_group_7(spark:SparkSession):
+def load_group_7(spark: SparkSession):
+    """
+    Loads raw discharge data for Group 7 years (2014, 2015, 2016, 2017, 2018) 
+    using their specific schema definition.
+    """
     schema = StructType([
         StructField("ESTAB", IntegerType(), True),
         StructField("Seremi", IntegerType(), True),
@@ -211,5 +253,5 @@ def load_group_7(spark:SparkSession):
         StructField("INTERV_Q", IntegerType(), True)
     ])
 
-    years = [2014,2015,2016,2017,2018]
+    years = [2014, 2015, 2016, 2017, 2018]
     return download(spark, schema, years)

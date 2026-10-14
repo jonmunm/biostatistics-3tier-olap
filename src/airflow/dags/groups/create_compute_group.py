@@ -1,3 +1,7 @@
+"""
+Task group module for managing compute operations and data testing pipelines.
+"""
+
 import os
 from airflow.sdk import task
 from airflow.utils.task_group import TaskGroup
@@ -7,6 +11,13 @@ from lib.skippable_spark_submit_operator import SkippableSparkSubmitOperator
 SCRIPTS_PATH = os.getenv("SCRIPTS_PATH")
 
 def create_compute_group(group_id: str) -> TaskGroup:
+    """
+    Creates and returns an Airflow TaskGroup containing sequential Spark-submit tasks 
+    for processing raw, silver, and gold tiers along with their respective validation tests.
+
+    :param group_id: Unique identifier for the task group.
+    :return: An Airflow TaskGroup instance configured with the execution pipeline.
+    """
     with TaskGroup(group_id=group_id) as tg:
 
         run_raw_transformations = SkippableSparkSubmitOperator(
@@ -34,7 +45,7 @@ def create_compute_group(group_id: str) -> TaskGroup:
             exec_flag="{{ params.compute.run_raw_tests }}",
             global_flag="{{ params.compute.run }}",
             trigger_rule=TriggerRule.ALL_DONE
-        )     
+        )    
 
         run_silver_transformations = SkippableSparkSubmitOperator(
             task_id="run_silver_transformations",
@@ -86,7 +97,7 @@ def create_compute_group(group_id: str) -> TaskGroup:
             exec_flag="{{ params.compute.run_gold_tests }}",
             global_flag="{{ params.compute.run }}",
             trigger_rule=TriggerRule.ALL_DONE
-        )  
+        )   
 
         run_raw_transformations >> run_raw_tests >> \
         run_silver_transformations >> run_silver_tests >> \

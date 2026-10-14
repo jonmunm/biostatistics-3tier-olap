@@ -1,11 +1,26 @@
+"""
+Task group module for handling database initialization and setup in DuckDB.
+"""
+
 from airflow.sdk import task
 from airflow.utils.task_group import TaskGroup
 
 def create_db_initialization_group(group_id: str) -> TaskGroup:
+    """
+    Creates and returns an Airflow TaskGroup that handles the creation and initialization 
+    of the database schema using an external SQL script.
+
+    :param group_id: Unique identifier for the task group.
+    :return: An Airflow TaskGroup instance configured with the initialization task.
+    """
     with TaskGroup(group_id=group_id) as tg:
         
         @task(task_id=group_id)
         def initialize_db():
+            """
+            Reads the initialization SQL script from the schema directory and executes it 
+            against the local DuckDB database file to set up schemas and tables.
+            """
             import os
             import duckdb
 

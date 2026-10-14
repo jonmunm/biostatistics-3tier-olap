@@ -1,3 +1,8 @@
+"""
+Great Expectations data quality module for validating gold tier health discharge fact tables,
+including referential integrity checks against dimension IDs, schema matching, null checks, and data types.
+"""
+
 import os
 import sys
 import great_expectations as gx
@@ -5,16 +10,28 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("DQ_Discharges_Gold").getOrCreate()
 
-def get_ids(dim:str) -> list[int]:
+def get_ids(dim: str) -> list[int]:
+    """
+    Reads a dimension CSV file and extracts a distinct list of integer IDs 
+    to be used for referential integrity validation sets.
+
+    :param dim: File path to the target dimension CSV file.
+    :return: A list of distinct integer IDs.
+    """
     return [row[0] for row in 
-                    spark.read.option("header", "true").option("sep", ";")\
-                        .csv(dim)\
-                        .select("id")\
-                        .distinct()\
-                        .collect()
+                spark.read.option("header", "true").option("sep", ";")\
+                    .csv(dim)\
+                    .select("id")\
+                    .distinct()\
+                    .collect()
                 ]    
 
 def validate_uniformed_discharges():
+    """
+    Initializes a Great Expectations context, loads the gold tier fact parquet dataset and reference dimensions,
+    configures datasource assets and expectation suites, executes referential and schema quality checks, 
+    and handles assertion failures by printing out detailed error metadata.
+    """
     context = gx.get_context(project_root_dir="/opt/spark/work-dir/gx")
     
     DATA_PATH = os.getenv("DATA_PATH")

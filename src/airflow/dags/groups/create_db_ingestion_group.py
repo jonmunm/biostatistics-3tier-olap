@@ -1,11 +1,27 @@
+"""
+Task group module for handling database ingestion processes, 
+including dimensions and fact tables loading into DuckDB.
+"""
+
 from airflow.utils.task_group import TaskGroup
 from airflow.utils.trigger_rule import TriggerRule
 from lib.skippable_python_operator import SkippablePythonOperator
 
 def create_db_ingestion_group(group_id: str) -> TaskGroup:
+    """
+    Creates and returns an Airflow TaskGroup that orchestrates the data loading 
+    pipeline from processed Parquet files into the DuckDB warehouse database.
+
+    :param group_id: Unique identifier for the task group.
+    :return: An Airflow TaskGroup instance configured with dimension and fact ingestion tasks.
+    """
     with TaskGroup(group_id=group_id) as tg:
 
         def load_dimensions():
+            """
+            Discovers dimension CSV files, reads their corresponding Gold Parquet outputs,
+            and inserts the records into the respective dimension tables within the DuckDB warehouse.
+            """
             import glob
             import duckdb
             import os
@@ -38,6 +54,10 @@ def create_db_ingestion_group(group_id: str) -> TaskGroup:
                 native_connection.close()
                 
         def load_fact_tables():
+            """
+            Reads processed Parquet files from the Gold tier and bulk-inserts 
+            them by name into the main biostatistics fact table within the DuckDB warehouse.
+            """
             import os
             import duckdb
 
@@ -57,7 +77,7 @@ def create_db_ingestion_group(group_id: str) -> TaskGroup:
             except Exception as e:
                 raise e
             finally:
-                conn.close()           
+                conn.close()         
 
         load_dimensions = SkippablePythonOperator(
             python_callable=load_dimensions,

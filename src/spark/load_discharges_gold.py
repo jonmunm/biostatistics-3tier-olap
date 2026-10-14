@@ -1,3 +1,9 @@
+"""
+Spark application module for transforming silver health discharge data into the gold tier,
+performing complex dimension lookups, recoding causes of death, validating city CUTs, 
+and outputting final fact table parquet files.
+"""
+
 import logging
 import sys
 import os
@@ -8,7 +14,6 @@ from pyspark.sql.types import IntegerType
 
 APP_NAME = "Discharge App - Gold"
 
-# Asegúrate de definir esto ANTES de crear la SparkSession
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -22,6 +27,12 @@ if not DATA_PATH:
     raise Exception("DATA_PATH not set")
 
 if __name__ == "__main__":
+    """
+    Main entry point for the gold discharge processing job. Initializes the Spark session,
+    reads all dimension lookup tables and silver datasets, performs broadcast joins to map 
+    business keys to dimension IDs, normalizes causes of death, handles city code validity, 
+    and writes the final fact table as Parquet files to the gold layer.
+    """
 
     spark = SparkSession\
         .builder\

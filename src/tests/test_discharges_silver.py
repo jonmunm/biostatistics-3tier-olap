@@ -1,3 +1,9 @@
+"""
+Great Expectations data quality module for validating silver tier health discharge datasets,
+including schema column matching, null checks, data types, value ranges, and regex pattern matching 
+for causes of death.
+"""
+
 import os
 import sys
 import great_expectations as gx
@@ -6,6 +12,11 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("DQ_Discharges_Silver").getOrCreate()
 
 def validate_uniformed_discharges():
+    """
+    Initializes a Great Expectations context, loads the silver tier discharge parquet dataset,
+    configures datasource assets and expectation suites, executes comprehensive data quality validations
+    (nulls, types, ranges, regex for ICD codes), and handles assertion failures by printing out detailed error metadata.
+    """
     context = gx.get_context(project_root_dir="/opt/spark/work-dir/gx")
     
     data_path = os.getenv('DATA_PATH', '/opt/spark/data')
@@ -34,7 +45,7 @@ def validate_uniformed_discharges():
     validator.expect_column_values_to_not_be_null("city")
     validator.expect_column_values_to_not_be_null("healthcare_service")
     validator.expect_column_values_to_not_be_null("cause_of_death_1")
-    validator.expect_column_values_to_not_be_null("cause_of_death_2")
+    validator.expect_column_values_to_not_be_null("cause_of_death_2")    
 
     validator.expect_column_values_to_be_of_type("year", "IntegerType")
     validator.expect_column_values_to_be_of_type("gender", "IntegerType")
